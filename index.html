@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pour toi Romane</title>
+<!-- Port JavaScript de bouquet3d.py par alishsharma17 (https://github.com/alishsharma17/Ascii-Flower-Bouquet-), MIT License, Copyright (c) alishsharma17 -->
+<style>
+:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:#0d0b12}
+body{margin:0;background:#0d0b12;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.cap{margin:6px 0 0;padding:0 12px;text-align:center;color:#f2a7b6;font:italic 1.15rem/1.3 "Iowan Old Style",Georgia,serif}
+pre{margin:0;color:#ccc;font-family:ui-monospace,Menlo,Consolas,"DejaVu Sans Mono",monospace;line-height:1.2;white-space:pre}
+i{font-style:normal}
+</style>
+</head>
+<body>
+<pre id="v" role="img" aria-label="Un bouquet de fleurs qui tourne"></pre>
+<p class="cap">Un bouquet de fleurs qui ne fane jamais</p>
+<script>
+(function(){
+var FPS=24,SPIN=0.6,TILT=0.30,CAM=4.0,MESSAGE="pour toi Romane \u2665",NH=18,PIVOT=0.2;
+var WHITE=[244,248,251,254,255,231],PINK=[125,162,168,205,211,218,225],RED=[52,88,124,160,196,203],PURPLE=[54,91,97,134,140,183],YELLOW=[136,178,214,220,226,229],ORANGE=[130,166,202,208,214,216],GOLD=[94,136,178,214,220],DARK=[52,58,94,130,136],GREENS=[22,28,28,34,35,71,77,114],PAPER=[101,144,187,223,230,231],RIBBON=[88,125,161,197,204,211],HC=[161,197,204,205,211,218],MC=[161,168,205,211,218,225,218,211,205,168];
+var SHADE=".:-=+*%@",PS="+*#%";
+var LL=[-0.45,0.6,0.66],ln=Math.sqrt(LL[0]*LL[0]+LL[1]*LL[1]+LL[2]*LL[2]),LX=LL[0]/ln,LY=LL[1]/ln,LZ=LL[2]/ln;
+var DISC=[[WHITE,GOLD,13],[PINK,GOLD,8],[RED,DARK,6],[PURPLE,GOLD,7],[YELLOW,DARK,12],[ORANGE,DARK,9]],TUL=[RED,PINK,YELLOW];
+var PI=Math.PI,sin=Math.sin,cos=Math.cos,sqrt=Math.sqrt,abs=Math.abs;
+var el=document.getElementById('v');
+function hex(n){if(n<16)return['#000','#800000','#008000','#808000','#000080','#800080','#008080','#c0c0c0','#808080','#f00','#0f0','#ff0','#00f','#f0f','#0ff','#fff'][n];if(n>=232){var g=8+(n-232)*10;return'rgb('+g+','+g+','+g+')';}n-=16;var v=function(k){return k?55+k*40:0};return'rgb('+v(Math.floor(n/36))+','+v(Math.floor(n/6)%6)+','+v(n%6)+')';}
+var css='';for(var q=16;q<256;q++)css+='.k'+q+'{color:'+hex(q)+'}';
+var st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
+var seed=21;function R(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}
+function U(a,b){return a+(b-a)*R();}
+function norm(v){var m=sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2])||1;return[v[0]/m,v[1]/m,v[2]/m];}
+function cross(a,b){return[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];}
+function pick(p,b){return p[Math.floor(b*p.length)];}
+function build(){
+var pts=[],flowers=[],babies=[],sparkles=[],neck=[0,-0.12,0],C=[0,0.12,0],D=0.64,N=10,golden=PI*(3-sqrt(5)),heads=[],i,j;
+for(i=0;i<N;i++){var e=(88-60*sqrt(i/(N-1)))*PI/180,az=i*golden,d=[cos(e)*cos(az),sin(e),cos(e)*sin(az)],k=D*U(0.92,1.05);heads.push([[C[0]+d[0]*k,C[1]+d[1]*k,C[2]+d[2]*k],norm(d)]);}
+var di=0;
+heads.forEach(function(h,idx){var pos=h[0],ax=h[1],b=[pos[0]-ax[0]*0.03,pos[1]-ax[1]*0.03,pos[2]-ax[2]*0.03];
+for(var j=0;j<70;j++){var t=j/69;pts.push([b[0]+(neck[0]-b[0])*t,b[1]+(neck[1]-b[1])*t,b[2]+(neck[2]-b[2])*t,ax[0],0,ax[2],GREENS,-0.15,true,null]);}
+if(idx===3||idx===8){var nt=idx===8?1:0;flowers.push({p:pos,kind:'t',pal:TUL[nt%3],R:0.11,seed:U(0,6.28)});}
+else{var dd=DISC[di%6];di++;flowers.push({p:pos,kind:'d',pal:dd[0],cpal:dd[1],n:dd[2],R:U(0.12,0.14),seed:U(0,6.28)});}});
+for(i=0;i<8;i++){var a=(i+0.4)/8*2*PI,c=cos(a),s=sin(a),base=[0.26*c,0.30,0.26*s],d2=norm([c,0.15,s]),side=[-s,0,c],n=norm(cross(side,d2)),L=0.30,W=0.07;
+for(var ti=0;ti<32;ti++){var t=ti/31;for(var wi=-5;wi<=5;wi++){var w=wi/5,cu=0.025*w*w;
+pts.push([base[0]+d2[0]*L*t+side[0]*W*sin(PI*t)*w+n[0]*cu,base[1]+d2[1]*L*t-0.10*t*t+n[1]*cu,base[2]+d2[2]*L*t+side[2]*W*sin(PI*t)*w+n[2]*cu,n[0],n[1],n[2],GREENS,wi===0?-0.25:0,true,null]);}}}
+var y0=-0.20,y1=0.30,r0=0.06,r1=0.36,kk=(r1-r0)/(y1-y0),rings=50;
+for(i=0;i<rings;i++){var t=i/(rings-1),r=r0+(r1-r0)*t,cnt=Math.max(8,Math.floor(170*r));
+for(j=0;j<cnt;j++){var ph=(j+R())/cnt*2*PI,c=cos(ph),s=sin(ph),y=y0+(y1-y0)*t;if(t>0.9)y+=0.03*sin(9*ph);var fold=0.3*(abs(sin(5*ph))-0.6),nn=norm([c,-kk,s]);pts.push([r*c,y,r*s,nn[0],nn[1],nn[2],PAPER,fold,false,null]);}}
+for(i=0;i<7;i++){var a=i/7*2*PI,sx=0.025*cos(a),sz=0.025*sin(a);for(j=0;j<40;j++){var t=j/39;pts.push([sx*(1+1.2*t),-0.20-0.30*t,sz*(1+1.2*t),cos(a),0,sin(a),GREENS,-0.1,true,null]);}}
+var by=-0.12,br=r0+kk*(by-y0)+0.01;
+for(j=0;j<90;j++){var ph=j/90*2*PI;[-0.012,0,0.012].forEach(function(dy){pts.push([br*cos(ph),by+dy,br*sin(ph),cos(ph),0,sin(ph),RIBBON,0,false,null]);});}
+var kn=[0,by,br+0.01];
+[-1,1].forEach(function(sd){for(var j=0;j<70;j++){var a=j/70*2*PI,lx=sd*(0.07+0.07*cos(a)),ly=0.04*sin(a)+0.02*(0.07+0.07*cos(a))/0.14;[1,0.7].forEach(function(f){pts.push([kn[0]+lx*f,kn[1]+ly*f,kn[2]+0.01,sd*0.3,0.2,0.93,RIBBON,0.1,true,null]);});}
+for(var j=0;j<30;j++){var t=j/29;pts.push([kn[0]+sd*0.06*t,kn[1]-0.15*t,kn[2]+0.015,sd*0.2,0,0.98,RIBBON,-0.05+0.05*sin(t*9),true,null]);}});
+[-0.01,0,0.01].forEach(function(dx){pts.push([dx,by,kn[2]+0.02,0,0,1,RIBBON,0.2,true,"@"]);});
+for(i=0;i<90;i++){var a=R()*2*PI,e=U(0.3,1.4),rr=U(0.40,0.58);babies.push([rr*cos(a)*cos(e),C[1]+rr*sin(e),rr*sin(a)*cos(e),U(0,6.28)]);}
+for(i=0;i<30;i++){var a=R()*2*PI,rr=U(0.75,0.95);sparkles.push([rr*cos(a),U(-0.3,1.0),rr*sin(a),U(0,6.28),U(1.5,4.0)]);}
+return{pts:pts,flowers:flowers,babies:babies,sparkles:sparkles};}
+var scene=build(),hearts=[];
+function upHearts(dt){while(hearts.length<NH)hearts.push([Math.random(),1+Math.random(),0.03+Math.random()*0.05,Math.random()*6.28,HC[Math.floor(Math.random()*HC.length)]]);
+hearts.forEach(function(h){h[1]-=h[2]*dt;if(h[1]<0){h[0]=Math.random();h[1]=1;h[4]=HC[Math.floor(Math.random()*HC.length)];}});}
+var COLS,ROWS;
+function layout(){var w=window.innerWidth,h=window.innerHeight-70,fs=Math.max(6,Math.min(14,w*0.98/(64*0.6),h*0.98/(36*1.2)));
+COLS=Math.floor(Math.min(w*0.98/(fs*0.6),80));ROWS=Math.floor(Math.min(h*0.98/(fs*1.2),0.537*(COLS-2)+4));el.style.fontSize=fs+'px';}
+function render(t){
+var cols=COLS,rows=ROWS,n=rows*cols,chars=new Array(n),colors=new Int16Array(n),zb=new Float32Array(n),i;
+for(i=0;i<n;i++){chars[i]=' ';zb[i]=-1e9;}
+var vr=rows-1,scale=Math.max(1,Math.min((vr-2)/1.45,(cols-2)/2.7)),sxs=scale*2,cx=cols/2,cy=1+0.78*scale,ang=t*SPIN,ca=cos(ang),sa=sin(ang),ct=cos(TILT),stt=sin(TILT);
+function plot(c,r,z,ch,co){if(r>=0&&r<vr&&c>=0&&c<cols){var k=r*cols+c;if(z>zb[k]){zb[k]=z;chars[k]=ch;colors[k]=co;}}}
+function proj(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca,yp=y-PIVOT,yt=yp*ct-zr*stt,zt=yp*stt+zr*ct,f=CAM/(CAM-zt);return[cx+xr*f*sxs,cy-yt*f*scale,zt,f];}
+hearts.forEach(function(h){var c=Math.trunc((h[0]+0.015*sin(t*1.2+h[3]))*cols);c=((c%cols)+cols)%cols;plot(c,Math.trunc(h[1]*vr),-50,"\u2665",h[4]);});
+var P=scene.pts;
+for(i=0;i<P.length;i++){var p=P[i],q=proj(p[0],p[1],p[2]),nxr=p[3]*ca-p[5]*sa,nzr=p[3]*sa+p[5]*ca,nyt=p[4]*ct-nzr*stt,nzt=p[4]*stt+nzr*ct,dot=nxr*LX+nyt*LY+nzt*LZ;
+if(p[8]&&dot<0)dot=-dot*0.55;var b=Math.min(0.999,Math.max(0,0.25+0.75*Math.max(0,dot)+p[7])),ch=p[9]||SHADE[Math.floor(b*SHADE.length)];
+plot(Math.trunc(q[0]),Math.trunc(q[1]),q[2],ch,pick(p[6],b));}
+scene.flowers.forEach(function(F){var q=proj(F.p[0],F.p[1],F.p[2]),fx=q[0],fy=q[1],zt=q[2],f=q[3],rx=F.R*f*sxs,ry=F.R*f*scale,dim=-0.4*(1-Math.min(1,Math.max(0,(zt+0.6)/1.2))),rot=F.seed+ang*0.7;
+for(var r=Math.trunc(fy-ry)-1;r<Math.trunc(fy+ry)+2;r++){var dy=(r+0.5-fy)/ry;
+for(var c=Math.trunc(fx-rx)-1;c<Math.trunc(fx+rx)+2;c++){var dx=(c+0.5-fx)/rx,b;
+if(F.kind==='d'){var s=sqrt(dx*dx+dy*dy);if(s>1)continue;
+if(s<0.3){b=Math.min(0.999,Math.max(0,0.55-0.35*dx-0.35*dy+dim));plot(c,r,zt+0.06,s<0.17?"@":"o",pick(F.cpal,b));continue;}
+var ph=Math.atan2(dy,dx),reach=0.32+0.68*Math.pow(abs(cos(F.n*(ph+rot)/2)),0.7);if(s>reach)continue;
+var edge=s>reach-0.14?-0.22:0;b=Math.min(0.999,Math.max(0,0.62-0.22*dx-0.28*dy+0.12*s+edge+dim));
+plot(c,r,zt+0.04*(1-s),PS[Math.floor(b*PS.length)],pick(F.pal,b));}
+else{var v=(1-dy)/2;if(v<0||v>1)continue;var hw=0.62*sin(PI*0.5*Math.min(1,v*1.5+0.05));if(hw<=0||abs(dx)>hw)continue;
+var xn=dx/hw;if(v>0.72+0.28*Math.pow(cos(1.5*PI*xn),2))continue;
+var seam=(abs(abs(xn)-0.33)<0.12&&v>0.3)?-0.25:0;b=Math.min(0.999,Math.max(0,0.55-0.3*xn+0.1*v+seam+dim));
+plot(c,r,zt+0.03,PS[Math.floor(b*PS.length)],pick(F.pal,b));}}}});
+scene.babies.forEach(function(B){var q=proj(B[0],B[1],B[2]),star=sin(t*2+B[3])>0.6;plot(Math.trunc(q[0]),Math.trunc(q[1]),q[2]+0.02,star?"*":"\u00b7",star?231:255);});
+scene.sparkles.forEach(function(S){var q=proj(S[0],S[1],S[2]),tw=sin(t*S[4]+S[3]),c=Math.trunc(q[0]),r=Math.trunc(q[1]);
+if(tw>0.85)plot(c,r,q[2],"*",231);else if(tw>0.4)plot(c,r,q[2],"+",225);else if(tw>0)plot(c,r,q[2],"\u00b7",218);});
+var mr=rows-1,ms=Math.max(0,Math.floor((cols-MESSAGE.length)/2)),sh=Math.floor(t*6);
+for(i=0;i<MESSAGE.length;i++){if(ms+i<cols){chars[mr*cols+ms+i]=MESSAGE[i];colors[mr*cols+ms+i]=MC[(i+sh)%MC.length];}}
+var out=[];
+for(var r=0;r<rows;r++){var s='',last=-1,open=false;for(var c=0;c<cols;c++){var k=r*cols+c,ch=chars[k];if(ch!==' '&&colors[k]!==last){if(open)s+='</i>';s+='<i class="k'+colors[k]+'">';open=true;last=colors[k];}s+=ch;}if(open)s+='</i>';out.push(s);}
+el.innerHTML=out.join('\n');}
+layout();
+var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+window.addEventListener('resize',function(){layout();});
+if(still){upHearts(0);render(0.8);}
+else{var t0=null,last=0;
+(function frame(ts){if(t0===null){t0=ts;last=ts;}
+if(ts-last>=1000/FPS){var dt=Math.min(0.1,(ts-last)/1000);last=ts;upHearts(dt);render((ts-t0)/1000);}
+requestAnimationFrame(frame);})(performance.now());}
+})();
+</script>
+</body>
+</html>
